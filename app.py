@@ -433,14 +433,17 @@ def main():
             st.caption(f"This will analyze data from {new_start} to {new_end}")
         
         # Run analysis button
+# All'interno della sidebar...
         if st.button("Run New Analysis", use_container_width=True):
-            success, message = run_analysis(new_lookback)
+            # Usiamo il nuovo nome e passiamo anche il ticker selezionato
+            success, message = run_analysis_for_ticker(selected_ticker, new_lookback)
             if success:
                 st.success(message)
+                # Rimuovi la cache per forzare il ricaricamento dei nuovi dati
+                st.cache_data.clear()
                 st.rerun()
             else:
-                st.error(message)
-        
+                st.error(message)     
         # Cycle analysis info
         if 'cycle_analysis' in summary:
             st.markdown("---")
