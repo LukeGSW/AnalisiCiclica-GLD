@@ -28,9 +28,24 @@ def main():
     print(f"Ticker: {Config.TICKER}")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
-    
-    # Initialize components
+        # ================================================================= #
+    #                     <<< SEZIONE MODIFICATA 1 >>>                    #
+    # ================================================================= #
+    # Definiamo e creiamo il percorso dati specifico per il ticker
+    base_data_dir = 'data'
+    ticker_data_path = os.path.join(base_data_dir, Config.TICKER)
+    os.makedirs(ticker_data_path, exist_ok=True)
+    print(f"📂 I dati di output verranno salvati in: {ticker_data_path}")
+
+    # Inizializziamo i componenti passando il nuovo percorso dati
     notifier = TelegramNotifier()
+    fetcher = DataFetcher(data_path=ticker_data_path)
+    analyzer = CycleAnalyzer() # Non salva file, quindi non necessita del percorso
+    generator = SignalGenerator(data_path=ticker_data_path)
+    backtester = Backtester(data_path=ticker_data_path)
+    # ================================================================= #
+    
+
     
     try:
         # Validate configuration
@@ -155,7 +170,13 @@ def main():
         }
         
         # Save summary
-        summary_file = os.path.join(Config.DATA_DIR, 'analysis_summary.json')
+       # ================================================================= #
+        #                     <<< SEZIONE MODIFICATA 2 >>>                    #
+        # ================================================================= #
+        # Usiamo il percorso dinamico per salvare il file di summary
+        summary_filename = 'analysis_summary.json' # Nome file standard
+        summary_file = os.path.join(ticker_data_path, summary_filename)
+        # ================================================================= #
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2, default=str)
         print(f"📄 Summary saved to {summary_file}")
