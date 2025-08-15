@@ -576,68 +576,68 @@ def main():
                 st.metric("Buy Signals", buy_signals)
                 st.metric("Sell Signals", sell_signals)
     
-with tab3:
-        st.header("Backtest Results")
-
-        # --- Equity Curve per l'intervallo selezionato ---
-        st.subheader("💰 Equity Curve")
-        
-        # ================================================================= #
-        #                         <<< CORREZIONE QUI >>>                      #
-        # ================================================================= #
-        # Passiamo il percorso dati del ticker selezionato al Backtester
-        backtester = Backtester(data_path=ticker_data_path)
-        # ================================================================= #
-        
-        # Eseguiamo un backtest semplice solo per la visualizzazione sull'intervallo scelto
-        backtest_visual_output = backtester.run_backtest(df_filtered)
-        results_visual_df = backtest_visual_output.get('results')
-        
-        if results_visual_df is not None:
-            fig_equity = create_equity_chart(results_visual_df)
-            st.plotly_chart(fig_equity, use_container_width=True)
-        else:
-            st.warning("Could not generate equity curve for the selected range.")
-
-        # --- Metriche dal Walk-Forward Analysis (più robuste) ---
-        st.subheader("📊 Performance Metrics (Walk-Forward Analysis)")
-        backtest_data = data.get('backtest', {})
-        
-        # Controlla se abbiamo i risultati del Walk-Forward
-        if 'in_sample' in backtest_data and 'out_of_sample' in backtest_data:
-            is_metrics = backtest_data['in_sample']
-            oos_metrics = backtest_data['out_of_sample']
+    with tab3:
+            st.header("Backtest Results")
+    
+            # --- Equity Curve per l'intervallo selezionato ---
+            st.subheader("💰 Equity Curve")
             
-            col1, col2 = st.columns(2)
+            # ================================================================= #
+            #                         <<< CORREZIONE QUI >>>                      #
+            # ================================================================= #
+            # Passiamo il percorso dati del ticker selezionato al Backtester
+            backtester = Backtester(data_path=ticker_data_path)
+            # ================================================================= #
             
-            with col1:
-                st.markdown("**In-Sample Performance**")
-                for key, value in is_metrics.items():
-                    st.metric(
-                        label=key.replace('_', ' ').title().replace('%', ''),
-                        value=f"{float(value):.2f}{'%' if '%' in key else ''}"
-                    )
+            # Eseguiamo un backtest semplice solo per la visualizzazione sull'intervallo scelto
+            backtest_visual_output = backtester.run_backtest(df_filtered)
+            results_visual_df = backtest_visual_output.get('results')
             
-            with col2:
-                st.markdown("**Out-of-Sample Performance**")
-                for key, value in oos_metrics.items():
-                    st.metric(
-                        label=key.replace('_', ' ').title().replace('%', ''),
-                        value=f"{float(value):.2f}{'%' if '%' in key else ''}"
-                    )
-        else:
-            # Fallback
-            st.markdown("*(Displaying simple backtest metrics as Walk-Forward results are not available)*")
-            metrics = backtest_visual_output.get('metrics', {})
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Total Return", f"{metrics.get('total_return_%', 0):.2f}%")
-                st.metric("Max Drawdown", f"{metrics.get('max_drawdown_%', 0):.2f}%")
-                st.metric("Sharpe Ratio", f"{metrics.get('sharpe_ratio', 0):.2f}")
-            with col2:
-                st.metric("Total Trades", f"{int(metrics.get('total_trades', 0)):.0f}")
-                st.metric("Win Rate", f"{metrics.get('win_rate_%', 0):.1f}%")
-                st.metric("Profit Factor", f"{metrics.get('profit_factor', 0):.2f}")
+            if results_visual_df is not None:
+                fig_equity = create_equity_chart(results_visual_df)
+                st.plotly_chart(fig_equity, use_container_width=True)
+            else:
+                st.warning("Could not generate equity curve for the selected range.")
+    
+            # --- Metriche dal Walk-Forward Analysis (più robuste) ---
+            st.subheader("📊 Performance Metrics (Walk-Forward Analysis)")
+            backtest_data = data.get('backtest', {})
+            
+            # Controlla se abbiamo i risultati del Walk-Forward
+            if 'in_sample' in backtest_data and 'out_of_sample' in backtest_data:
+                is_metrics = backtest_data['in_sample']
+                oos_metrics = backtest_data['out_of_sample']
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**In-Sample Performance**")
+                    for key, value in is_metrics.items():
+                        st.metric(
+                            label=key.replace('_', ' ').title().replace('%', ''),
+                            value=f"{float(value):.2f}{'%' if '%' in key else ''}"
+                        )
+                
+                with col2:
+                    st.markdown("**Out-of-Sample Performance**")
+                    for key, value in oos_metrics.items():
+                        st.metric(
+                            label=key.replace('_', ' ').title().replace('%', ''),
+                            value=f"{float(value):.2f}{'%' if '%' in key else ''}"
+                        )
+            else:
+                # Fallback
+                st.markdown("*(Displaying simple backtest metrics as Walk-Forward results are not available)*")
+                metrics = backtest_visual_output.get('metrics', {})
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Total Return", f"{metrics.get('total_return_%', 0):.2f}%")
+                    st.metric("Max Drawdown", f"{metrics.get('max_drawdown_%', 0):.2f}%")
+                    st.metric("Sharpe Ratio", f"{metrics.get('sharpe_ratio', 0):.2f}")
+                with col2:
+                    st.metric("Total Trades", f"{int(metrics.get('total_trades', 0)):.0f}")
+                    st.metric("Win Rate", f"{metrics.get('win_rate_%', 0):.1f}%")
+                    st.metric("Profit Factor", f"{metrics.get('profit_factor', 0):.2f}")
     with tab4:
         st.header("Trading History")
         
