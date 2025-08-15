@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List
 import json
-
+import os
 from config import Config
 
 class Backtester:
