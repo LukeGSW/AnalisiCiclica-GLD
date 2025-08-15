@@ -80,74 +80,99 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+def get_available_tickers(path='data'):
+    """Scansiona la directory dati e restituisce un elenco di ticker disponibili."""
+    if not os.path.exists(path):
+        return []
+    tickers = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+    return sorted(tickers)
 
-def run_analysis(lookback_years=10):
-    """Run the complete analysis pipeline with custom lookback"""
+@st.cache_data(ttl=600) # Cache dei dati per 10 minuti
+def load_data_for_ticker(ticker):
+    """Carica tutti i dati necessari per un ticker specifico."""
+    ticker_data_path = os.path.join('data', ticker)
+    if not os.path.exists(ticker_data_path):
+        return None
+    
+    data = {}
     try:
-        with st.spinner(f'🔄 Running analysis with {lookback_years} years lookback... This may take 1-2 minutes'):
-            # Progress bar
+        # Load signals data
+        signals_file = os.path.join(ticker_data_path, 'signals.csv')
+        data['signals'] = pd.read_csv(signals_file, index_col='date', parse_dates=True)
+        
+        # Load latest signal
+        latest_signal_file = os.path.join(ticker_data_path, 'signals_latest.json')
+        with open(latest_signal_file, 'r') as f:
+            data['latest_signal'] = json.load(f)
+            
+        # Load backtest results
+        backtest_file = os.path.join(ticker_data_path, 'backtest_results.json')
+        with open(backtest_file, 'r') as f:
+            data['backtest'] = json.load(f)
+            
+        # Load analysis summary
+        summary_file = os.path.join(ticker_data_path, 'analysis_summary.json')
+        with open(summary_file, 'r') as f:
+            data['summary'] = json.load(f)
+            
+    except Exception as e:
+        st.error(f"Errore nel caricamento dei dati per {ticker}: {e}")
+        return None
+        
+    return data
+def run_analysis_for_ticker(ticker, lookback_years=10):
+    """Run the complete analysis pipeline for a specific ticker."""
+    try:
+        with st.spinner(f'🔄 Running analysis for {ticker} with {lookback_years} years lookback...'):
             progress_bar = st.progress(0)
             status_text = st.empty()
             
-            # Calculate dates
+            # Definiamo il percorso dati per questo ticker
+            ticker_data_path = os.path.join('data', ticker)
+            os.makedirs(ticker_data_path, exist_ok=True)
+            
+            # Inizializziamo le classi con il percorso corretto
+            fetcher = DataFetcher(data_path=ticker_data_path)
+            analyzer = CycleAnalyzer()
+            generator = SignalGenerator(data_path=ticker_data_path)
+            backtester = Backtester(data_path=ticker_data_path)
+            
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=lookback_years*365.25)).strftime('%Y-%m-%d')
             
             # Step 1: Fetch data
-            status_text.text(f'📡 Fetching {lookback_years} years of data for {Config.TICKER}...')
+            status_text.text(f'📡 Fetching data for {ticker}...')
             progress_bar.progress(20)
-            
-            fetcher = DataFetcher()
-            df = fetcher.fetch_historical_data(
-                ticker=Config.TICKER,
-                start_date=start_date,
-                end_date=end_date
-            )
-            fetcher.save_data(df, filename=Config.HISTORICAL_DATA_FILE)
+            df = fetcher.fetch_historical_data(ticker=ticker, start_date=start_date, end_date=end_date)
+            fetcher.save_data(df)
             
             # Step 2: Cycle analysis
             status_text.text('🔄 Performing cycle analysis...')
             progress_bar.progress(40)
-            
-            analyzer = CycleAnalyzer()
             df_analyzed = analyzer.analyze_cycle(df)
             
             # Step 3: Generate signals
             status_text.text('🎯 Generating trading signals...')
             progress_bar.progress(60)
-            
-            generator = SignalGenerator()
             df_signals = generator.generate_signals(df_analyzed)
             generator.save_signals(df_signals)
             
             # Step 4: Run backtest
             status_text.text('📊 Running backtest...')
             progress_bar.progress(80)
-            
-            backtester = Backtester()
             wf_results = backtester.run_walk_forward_analysis(df_signals)
             backtester.save_backtest_results(wf_results)
             
-            # Step 5: Complete
-            status_text.text('✅ Analysis complete!')
-            progress_bar.progress(100)
-            
-            # Save summary
+            # Step 5: Save summary
+            status_text.text('📄 Creating summary...')
             latest_signal = generator.get_latest_signal(df_signals)
-            
-            # Add spectral analysis results
             spectral_results = analyzer.run_spectral_analysis(df_analyzed['oscillator'])
             monte_carlo_results = analyzer.run_monte_carlo_significance_test(df_analyzed['oscillator'])
             
             summary = {
-                'timestamp': datetime.now().isoformat(),
-                'ticker': Config.TICKER,
-                'lookback_years': lookback_years,
-                'data_points': len(df_signals),
-                'date_range': {
-                    'start': df_signals.index[0].strftime('%Y-%m-%d'),
-                    'end': df_signals.index[-1].strftime('%Y-%m-%d')
-                },
+                'timestamp': datetime.now().isoformat(), 'ticker': ticker,
+                'lookback_years': lookback_years, 'data_points': len(df_signals),
+                'date_range': {'start': df_signals.index[0].strftime('%Y-%m-%d'), 'end': df_signals.index[-1].strftime('%Y-%m-%d')},
                 'latest_signal': latest_signal,
                 'cycle_analysis': {
                     'dominant_period': float(spectral_results['dominant_period']) if spectral_results['dominant_period'] else None,
@@ -155,16 +180,16 @@ def run_analysis(lookback_years=10):
                     'significant': bool(monte_carlo_results['significant'])
                 }
             }
-            
-            summary_file = os.path.join(Config.DATA_DIR, 'analysis_summary.json')
+            summary_file = os.path.join(ticker_data_path, 'analysis_summary.json')
             with open(summary_file, 'w') as f:
                 json.dump(summary, f, indent=2, default=str)
-            
-            return True, f"Analysis completed successfully with {lookback_years} years of data!"
+                
+            progress_bar.progress(100)
+            status_text.text(f'✅ Analysis for {ticker} complete!')
+            return True, f"Analysis for {ticker} completed successfully!"
             
     except Exception as e:
-        return False, f"Error: {str(e)}"
-
+        return False, f"Error during analysis for {ticker}: {e}"
 def load_data():
     """Load all necessary data files"""
     data = {}
@@ -338,60 +363,28 @@ def create_equity_chart(df_results: pd.DataFrame):
 def main():
     """Main dashboard function"""
     
-    # Header
     st.title(f"🎯 Kriterion Quant Trading System")
-    st.markdown(f"### Cycle-Based Trading Strategy for {Config.TICKER}")
-    
-    # Load data
-    data = load_data()
-    
+
+    # --- Sidebar ---
+    with st.sidebar:
+        st.header("⚙️ Configuration")
+        available_tickers = get_available_tickers()
+        
+        if not available_tickers:
+            st.warning("No data found. Run an analysis via GitHub Actions first.")
+            st.stop()
+            
+        selected_ticker = st.selectbox("Select Ticker", available_tickers)
+        
+    # Carica i dati per il ticker selezionato
+    data = load_data_for_ticker(selected_ticker)
+
+    # --- Main Page ---
+    st.markdown(f"### Cycle-Based Trading Strategy for {selected_ticker}")
+
     if data is None:
-        st.warning("⚠️ No analysis data found. Please run the analysis first.")
-        
-        st.markdown("---")
-        
-        # Initial setup
-        col1, col2, col3 = st.columns([1, 2, 1])
-        
-        with col2:
-            st.markdown("### 🚀 Initial Setup")
-            st.info("""
-            This appears to be your first time using the dashboard. 
-            Click the button below to run the initial analysis and generate trading signals.
-            """)
-            
-            # Check API key
-            if not Config.EODHD_API_KEY:
-                st.error("❌ EODHD API Key not configured!")
-                st.markdown("""
-                Please configure your API key:
-                1. Get an API key from [EODHD](https://eodhistoricaldata.com/)
-                2. Add it to Streamlit Secrets (Settings → Secrets)
-                3. Format: `EODHD_API_KEY = "your_key_here"`
-                """)
-                return
-            
-            # Lookback selection for initial analysis
-            initial_lookback = st.slider(
-                "Select lookback period (years)",
-                min_value=1,
-                max_value=20,
-                value=10,
-                step=1
-            )
-            
-            # Run analysis button
-            if st.button("🎯 Run Initial Analysis", use_container_width=True, type="primary"):
-                success, message = run_analysis(initial_lookback)
-                
-                if success:
-                    st.success(f"✅ {message}")
-                    st.balloons()
-                    if st.button("📊 View Dashboard", use_container_width=True):
-                        st.rerun()
-                else:
-                    st.error(f"❌ {message}")
-        
+        st.warning(f"⚠️ Data for {selected_ticker} is missing or corrupted. Please re-run the analysis.")
+        # Qui potresti aggiungere un pulsante per rieseguire l'analisi per questo specifico ticker se lo desideri
         return
     
     # Regular dashboard view (when data exists)
