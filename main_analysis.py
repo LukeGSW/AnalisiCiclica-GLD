@@ -123,8 +123,25 @@ def main():
                 if 'avg_' in key:
                     print(f"  {key}: {value:.2f}")
         
-        # Step 5: Send notifications (invariato)
-        # ...
+# ================================================================= #
+#                <<< INSERISCI QUESTO BLOCCO QUI >>>                  #
+# ================================================================= #
+# Step 5: Send notifications
+print("\n" + "=" * 30)
+print("STEP 5: NOTIFICATIONS")
+print("=" * 30)
+
+if Config.SEND_TELEGRAM_NOTIFICATIONS:
+    # Invia l'alert del segnale solo se non è 'HOLD'
+    if latest_signal['signal'] != 'HOLD':
+        notifier.send_signal_alert(latest_signal)
+
+    # Invia sempre il riepilogo giornaliero
+    notifier.send_daily_summary(latest_signal, backtest_metrics)
+    print("✅ Telegram notifications sent.")
+else:
+    print("📵 Telegram notifications disabled")
+# ================================================================= #
 
         # Step 6: Create summary report
         print("\n" + "=" * 30)
