@@ -88,38 +88,36 @@ def get_available_tickers(path='data'):
     return sorted(tickers)
 
 @st.cache_data(ttl=600) # Cache dei dati per 10 minuti
-def load_data_for_ticker(ticker):
-    """Carica tutti i dati necessari per un ticker specifico."""
-    ticker_data_path = os.path.join('data', ticker)
-    if not os.path.exists(ticker_data_path):
+def load_data_from_path(ticker_path): # <<< Nome e parametro cambiati
+    """Carica tutti i dati necessari da un percorso specifico."""
+    if not os.path.exists(ticker_path):
         return None
-    
+
     data = {}
     try:
-        # Load signals data
-        signals_file = os.path.join(ticker_data_path, 'signals.csv')
+        # Carica i file usando il percorso fornito
+        signals_file = os.path.join(ticker_path, 'signals.csv')
         data['signals'] = pd.read_csv(signals_file, index_col='date', parse_dates=True)
-        
-        # Load latest signal
-        latest_signal_file = os.path.join(ticker_data_path, 'signals_latest.json')
+
+        latest_signal_file = os.path.join(ticker_path, 'signals_latest.json')
         with open(latest_signal_file, 'r') as f:
             data['latest_signal'] = json.load(f)
-            
-        # Load backtest results
-        backtest_file = os.path.join(ticker_data_path, 'backtest_results.json')
+
+        backtest_file = os.path.join(ticker_path, 'backtest_results.json')
         with open(backtest_file, 'r') as f:
             data['backtest'] = json.load(f)
-            
-        # Load analysis summary
-        summary_file = os.path.join(ticker_data_path, 'analysis_summary.json')
+
+        summary_file = os.path.join(ticker_path, 'analysis_summary.json')
         with open(summary_file, 'r') as f:
             data['summary'] = json.load(f)
-            
+
     except Exception as e:
-        st.error(f"Errore nel caricamento dei dati per {ticker}: {e}")
+        st.error(f"Errore nel caricamento dei dati da {ticker_path}: {e}")
         return None
-        
+
     return data
+
+
 def run_analysis_for_ticker(ticker, lookback_years=10):
     """Run the complete analysis pipeline for a specific ticker."""
     try:
@@ -376,8 +374,15 @@ def main():
             
         selected_ticker = st.selectbox("Select Ticker", available_tickers)
         
-    # Carica i dati per il ticker selezionato
-    data = load_data_for_ticker(selected_ticker)
+    # ================================================================= #
+    #                         <<< CORREZIONE QUI >>>                      #
+    # ================================================================= #
+    # Definiamo il percorso UNA SOLA VOLTA qui
+    ticker_data_path = os.path.join('data', selected_ticker)
+
+    # Carichiamo i dati usando il percorso completo
+    data = load_data_from_path(ticker_data_path)
+    # ================================================================= #
 
     # --- Main Page ---
     st.markdown(f"### Cycle-Based Trading Strategy for {selected_ticker}")
