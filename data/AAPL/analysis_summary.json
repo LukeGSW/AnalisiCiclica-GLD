@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-15T03:33:55.122054",
+  "timestamp": "2025-08-15T03:45:41.799229",
   "ticker": "AAPL",
   "data_points": 2475,
   "latest_signal": {
@@ -12,7 +12,7 @@
     "signal_strength": 37.895720525407334,
     "confidence": "MEDIUM",
     "price": 232.78,
-    "timestamp": "2025-08-15T03:33:54.390925"
+    "timestamp": "2025-08-15T03:45:40.488988"
   },
   "backtest_metrics": {
     "total_return_%": 78.69321686585462,
