@@ -3,10 +3,10 @@
   "signal": "SELL",
   "position": "FLAT",
   "phase_quadrant": "Quadrante 3 (Picco -> Discesa)",
-  "phase_value": 0.43179770445298477,
-  "oscillator_value": 100.98424750000004,
-  "signal_strength": 77.48334420843057,
+  "phase_value": 0.5862129057196209,
+  "oscillator_value": 70.07149749999996,
+  "signal_strength": 75.19990983449823,
   "confidence": "HIGH",
-  "price": 644.95,
-  "timestamp": "2025-08-14T21:39:56.176229"
+  "price": 232.78,
+  "timestamp": "2025-08-15T01:49:27.872575"
 }
