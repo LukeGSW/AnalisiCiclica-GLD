@@ -576,15 +576,19 @@ def main():
                 st.metric("Buy Signals", buy_signals)
                 st.metric("Sell Signals", sell_signals)
     
-    with tab3:
-        # ======================================================================
-        # SEZIONE MODIFICATA: Logica di backtest e visualizzazione corretta
-        # ======================================================================
+with tab3:
         st.header("Backtest Results")
 
         # --- Equity Curve per l'intervallo selezionato ---
         st.subheader("💰 Equity Curve")
-        backtester = Backtester()
+        
+        # ================================================================= #
+        #                         <<< CORREZIONE QUI >>>                      #
+        # ================================================================= #
+        # Passiamo il percorso dati del ticker selezionato al Backtester
+        backtester = Backtester(data_path=ticker_data_path)
+        # ================================================================= #
+        
         # Eseguiamo un backtest semplice solo per la visualizzazione sull'intervallo scelto
         backtest_visual_output = backtester.run_backtest(df_filtered)
         results_visual_df = backtest_visual_output.get('results')
@@ -600,9 +604,9 @@ def main():
         backtest_data = data.get('backtest', {})
         
         # Controlla se abbiamo i risultati del Walk-Forward
-        if 'in_sample_metrics' in backtest_data and 'out_of_sample_metrics' in backtest_data:
-            is_metrics = backtest_data['in_sample_metrics']
-            oos_metrics = backtest_data['out_of_sample_metrics']
+        if 'in_sample' in backtest_data and 'out_of_sample' in backtest_data:
+            is_metrics = backtest_data['in_sample']
+            oos_metrics = backtest_data['out_of_sample']
             
             col1, col2 = st.columns(2)
             
@@ -617,12 +621,12 @@ def main():
             with col2:
                 st.markdown("**Out-of-Sample Performance**")
                 for key, value in oos_metrics.items():
-                     st.metric(
+                    st.metric(
                         label=key.replace('_', ' ').title().replace('%', ''),
                         value=f"{float(value):.2f}{'%' if '%' in key else ''}"
                     )
         else:
-            # Fallback: mostra le metriche del backtest semplice se il WFA non è disponibile
+            # Fallback
             st.markdown("*(Displaying simple backtest metrics as Walk-Forward results are not available)*")
             metrics = backtest_visual_output.get('metrics', {})
             col1, col2 = st.columns(2)
@@ -634,7 +638,6 @@ def main():
                 st.metric("Total Trades", f"{int(metrics.get('total_trades', 0)):.0f}")
                 st.metric("Win Rate", f"{metrics.get('win_rate_%', 0):.1f}%")
                 st.metric("Profit Factor", f"{metrics.get('profit_factor', 0):.2f}")
-
     with tab4:
         st.header("Trading History")
         
