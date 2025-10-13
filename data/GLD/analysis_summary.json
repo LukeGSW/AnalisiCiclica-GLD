@@ -1,28 +1,28 @@
 {
-  "timestamp": "2025-10-10T21:38:01.051837",
+  "timestamp": "2025-10-13T21:36:55.796777",
   "ticker": "GLD",
-  "data_points": 2514,
+  "data_points": 2515,
   "latest_signal": {
-    "date": "2025-10-10",
+    "date": "2025-10-13",
     "signal": "HOLD",
     "position": "FLAT",
     "phase_quadrant": "Quadrante 3 (Picco -> Discesa)",
-    "phase_value": 0.9158112357490111,
-    "oscillator_value": 25.641500000000008,
-    "signal_strength": 94.12071489356735,
+    "phase_value": 0.917023472730151,
+    "oscillator_value": 26.43799999999993,
+    "signal_strength": 93.97119607982442,
     "confidence": "HIGH",
-    "price": 369.12,
-    "timestamp": "2025-10-10T21:37:59.805057"
+    "price": 378.09,
+    "timestamp": "2025-10-13T21:36:54.480747"
   },
   "backtest_metrics": {
-    "total_return_%": 78.7433217699431,
-    "max_drawdown_%": 0.0,
-    "sharpe_ratio": 1.4553214080766341,
+    "total_return_%": 78.27191069641704,
+    "max_drawdown_%": 0.9674316474462754,
+    "sharpe_ratio": 1.4365614957146473,
     "sortino_ratio": Infinity,
-    "calmar_ratio": Infinity,
-    "total_trades": 7,
-    "win_rate_%": 100.0,
-    "profit_factor": Infinity
+    "calmar_ratio": 20.911880930669877,
+    "total_trades": 8,
+    "win_rate_%": 87.5,
+    "profit_factor": 67.28063491222603
   },
   "cycle_analysis": {
     "dominant_period": 126.0,
