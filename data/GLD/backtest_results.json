@@ -1,20 +1,20 @@
 {
   "in_sample": {
-    "total_return_%": 97.06411314602057,
-    "max_drawdown_%": 2.3079904260891135,
-    "sharpe_ratio": 1.1875405524319227,
-    "sortino_ratio": 0.8400273050303027,
-    "calmar_ratio": 4.301289924671192,
+    "total_return_%": 97.46390334617709,
+    "max_drawdown_%": 2.303058864712515,
+    "sharpe_ratio": 1.1873048793599483,
+    "sortino_ratio": 0.8444919987838654,
+    "calmar_ratio": 4.323887660207576,
     "total_trades": 26,
     "win_rate_%": 76.92307692307693,
-    "profit_factor": 10.689361814458229
+    "profit_factor": 10.72724129905964
   },
   "out_of_sample": {
     "total_return_%": 94.09494566022988,
     "max_drawdown_%": 1.2510000394690657,
-    "sharpe_ratio": 1.3015957308153094,
+    "sharpe_ratio": 1.3007401277574429,
     "sortino_ratio": Infinity,
-    "calmar_ratio": 18.660813258720953,
+    "calmar_ratio": 18.636420038774915,
     "total_trades": 8,
     "win_rate_%": 87.5,
     "profit_factor": 81.5919794678354
