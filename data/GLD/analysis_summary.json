@@ -1,23 +1,23 @@
 {
-  "timestamp": "2025-12-22T21:41:24.519724",
+  "timestamp": "2025-12-23T21:41:28.684741",
   "ticker": "GLD",
-  "data_points": 2564,
+  "data_points": 2565,
   "latest_signal": {
-    "date": "2025-12-22",
+    "date": "2025-12-23",
     "signal": "HOLD",
     "position": "FLAT",
     "phase_quadrant": "Quadrante 3 (Picco -> Discesa)",
-    "phase_value": 0.9736370910092209,
-    "oscillator_value": 14.846750000000043,
-    "signal_strength": 72.70650279045643,
+    "phase_value": 0.9574043684637488,
+    "oscillator_value": 16.305000000000007,
+    "signal_strength": 78.1337099268637,
     "confidence": "HIGH",
-    "price": 408.23,
-    "timestamp": "2025-12-22T21:41:23.377828"
+    "price": 413.64,
+    "timestamp": "2025-12-23T21:41:27.394861"
   },
   "backtest_metrics": {
-    "total_return_%": 96.75675952751124,
+    "total_return_%": 97.09111305551829,
     "max_drawdown_%": 0.0,
-    "sharpe_ratio": 1.3194958380303388,
+    "sharpe_ratio": 1.3186225400230347,
     "sortino_ratio": Infinity,
     "calmar_ratio": Infinity,
     "total_trades": 7,
