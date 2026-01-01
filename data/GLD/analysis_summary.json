@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-12-31T21:41:48.284145",
+  "timestamp": "2026-01-01T21:42:18.878319",
   "ticker": "GLD",
   "data_points": 2570,
   "latest_signal": {
@@ -12,7 +12,7 @@
     "signal_strength": 87.95258482855694,
     "confidence": "HIGH",
     "price": 396.31,
-    "timestamp": "2025-12-31T21:41:47.086203"
+    "timestamp": "2026-01-01T21:42:17.708110"
   },
   "backtest_metrics": {
     "total_return_%": 96.8032202846987,
